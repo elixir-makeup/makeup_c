@@ -21,11 +21,6 @@ defmodule Makeup.Lexers.CLexer do
 
   whitespace = ascii_string([?\r, ?\s, ?\n, ?\f], min: 1) |> token(:whitespace)
 
-  # newlines =
-  #   choice([string("\r\n"), string("\n")])
-  #   |> optional(ascii_string([?\s, ?\n, ?\f, ?\r], min: 1))
-  #   |> token(:whitespace)
-
   any_char = utf8_char([]) |> token(:error)
 
   # Numbers
