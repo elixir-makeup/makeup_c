@@ -72,7 +72,8 @@ defmodule Makeup.Lexers.CLexer do
     |> lexeme
     |> token(:name)
 
-  define_name = ascii_string([?A..?Z], 1)
+  define_name =
+    ascii_string([?A..?Z], 1)
     |> optional(ascii_string([?a..?z, ?_, ?0..?9, ?A..?Z], min: 1))
 
   define = token(define_name, :name_constant)
@@ -184,33 +185,33 @@ defmodule Makeup.Lexers.CLexer do
         directive,
         keyword,
         # Strings
-        double_quoted_string_interpol,
+        double_quoted_string_interpol
       ] ++
-      [
-        # Chars
-        escape_char,
-        normal_char,
-      ] ++
-      delimiter_pairs ++
-      [
-        # Operators
-        operator,
-        # Numbers
-        number_bin,
-        number_oct,
-        number_hex,
-        # Floats must come before integers
-        number_float,
-        number_integer,
-        # Names
-        variable,
-        define,
-        punctuation,
-        # If we can't parse any of the above, we highlight the next character as an error
-        # and proceed from there.
-        # A lexer should always consume any string given as input.
-        any_char
-      ]
+        [
+          # Chars
+          escape_char,
+          normal_char
+        ] ++
+        delimiter_pairs ++
+        [
+          # Operators
+          operator,
+          # Numbers
+          number_bin,
+          number_oct,
+          number_hex,
+          # Floats must come before integers
+          number_float,
+          number_integer,
+          # Names
+          variable,
+          define,
+          punctuation,
+          # If we can't parse any of the above, we highlight the next character as an error
+          # and proceed from there.
+          # A lexer should always consume any string given as input.
+          any_char
+        ]
     )
 
   # By default, don't inline the lexers.
@@ -278,9 +279,9 @@ defmodule Makeup.Lexers.CLexer do
 
   # match function names. They are followed by parens...
   defp postprocess_helper([
-        {:name, attrs, text},
-        {:punctuation, %{language: :c}, "("}
-        | tokens
+         {:name, attrs, text},
+         {:punctuation, %{language: :c}, "("}
+         | tokens
        ]) do
     [
       {:name_function, attrs, text},

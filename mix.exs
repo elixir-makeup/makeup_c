@@ -4,12 +4,11 @@ defmodule MakeupC.MixProject do
   @version "0.1.0"
   @url "https://github.com/boydm/makeup_c"
 
-
   def project do
     [
       app: :makeup_c,
       version: "0.1.0",
-      elixir: "~> 1.10",
+      elixir: "~> 1.4",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       # Package
@@ -77,5 +76,4 @@ defmodule MakeupC.MixProject do
     System.cmd(ex_doc, args ++ opts)
     Mix.shell().info("Docs built successfully")
   end
-
 end

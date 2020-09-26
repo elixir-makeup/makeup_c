@@ -5,47 +5,47 @@ defmodule Makeup.Lexers.CLexer.Testing do
   alias Makeup.Lexer.Postprocess
 
   @sample_a """
-  //---------------------------------------------------------
-  kos_status_t kos_msg_queue_notification(
-    IN kos_cap_t notification_cap
-  ) {
-    kos_status_t status;
+    //---------------------------------------------------------
+    kos_status_t kos_msg_queue_notification(
+      IN kos_cap_t notification_cap
+    ) {
+      kos_status_t status;
 
-    if ( notification_cap ) {
-      // setting the notification
-      seL4_SetCap( 0, kos_cap_cptr(notification_cap) );
-      seL4_MessageInfo_t msg = seL4_Call(
-        KOS_APP_SLOT_MESSAGING_EP,
-        seL4_MessageInfo_new(KOS_MSG_QUEUE_SET_NOTIFICATION, 0, 1, 0)
-      );
-      status = seL4_MessageInfo_get_label( msg );
-    } else {
-      // clearing the notification
-      seL4_MessageInfo_t msg = seL4_Call(
-        KOS_APP_SLOT_MESSAGING_EP,
-        seL4_MessageInfo_new(KOS_MSG_QUEUE_CLEAR_NOTIFICATION, 0, 0, 0)
-      );
-      status = seL4_MessageInfo_get_label( msg );
+      if ( notification_cap ) {
+        // setting the notification
+        seL4_SetCap( 0, kos_cap_cptr(notification_cap) );
+        seL4_MessageInfo_t msg = seL4_Call(
+          KOS_APP_SLOT_MESSAGING_EP,
+          seL4_MessageInfo_new(KOS_MSG_QUEUE_SET_NOTIFICATION, 0, 1, 0)
+        );
+        status = seL4_MessageInfo_get_label( msg );
+      } else {
+        // clearing the notification
+        seL4_MessageInfo_t msg = seL4_Call(
+          KOS_APP_SLOT_MESSAGING_EP,
+          seL4_MessageInfo_new(KOS_MSG_QUEUE_CLEAR_NOTIFICATION, 0, 0, 0)
+        );
+        status = seL4_MessageInfo_get_label( msg );
+      }
+
+      return status;
     }
-
-    return status;
+  """
+  @sample_b """
+  static inline int test_fn(
+  IN kos_cap_t notification_cap
+  ) {
+  int arr[3] = {0};
+  int a = 0;
+  a--;
+  return a;
   }
-"""
-@sample_b """
-static inline int test_fn(
-IN kos_cap_t notification_cap
-) {
-int arr[3] = {0};
-int a = 0;
-a--;
-return a;
-}
-"""
-@sample_c """
-#ifdef BOOGER
-return NULL;
-#endif
-"""
+  """
+  @sample_c """
+  #ifdef BOOGER
+  return NULL;
+  #endif
+  """
 
   def lex_a(), do: @sample_a |> lex()
   def lex_b(), do: @sample_b |> lex()
