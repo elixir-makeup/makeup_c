@@ -42,6 +42,8 @@ defmodule Makeup.Lexers.CLexer.Testing do
   }
   """
   @sample_c """
+  /*multi
+  comment*/
   #ifdef BOOGER
   return NULL;
   #endif

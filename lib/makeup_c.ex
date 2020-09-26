@@ -172,7 +172,7 @@ defmodule Makeup.Lexers.CLexer do
     |> concat(line)
     |> token(:comment_single)
 
-  multiline_comment = string_like("/*", "*/", [utf8_char([])], :comment_multiline)
+  multiline_comment = string_like("/*", "*/", combinators_inside_string, :comment_multiline)
 
   root_element_combinator =
     choice(
