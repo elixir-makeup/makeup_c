@@ -1,6 +1,6 @@
 # MakeupC
-[![Build Status](https://travis-ci.org/boydm/makeup_c.svg?branch=master)](https://travis-ci.org/boydm/makeup_c)
-
+<!-- [![Build Status](https://travis-ci.org/boydm/makeup_c.svg?branch=master)](https://travis-ci.org/boydm/makeup_c)
+ -->
 A [Makeup](https://github.com/tmbb/makeup/) lexer for the C language.
 
 ## Installation
