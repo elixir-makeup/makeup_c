@@ -14,14 +14,8 @@ defmodule MakeupC.MixProject do
       # Package
       package: package(),
       description: description(),
-      aliases: aliases(),
-      docs: [
-        main: "readme",
-        assets: "assets",
-        extras: [
-          "README.md"
-        ]
-      ]
+      # aliases: aliases(),
+      docs: docs()
     ]
   end
 
@@ -52,28 +46,36 @@ defmodule MakeupC.MixProject do
   defp deps do
     [
       {:makeup, "~> 1.0"},
-      {:benchee, "~> 0.13", only: [:dev, :test]}
+      {:ex_doc, ">= 0.0.0", only: [:dev, :docs]},
     ]
   end
 
-  defp aliases do
+  def docs do
     [
-      docs: &build_docs/1,
-      release: "run scripts/release.exs"
+      extras: ["README.md"],
+      source_ref: "v#{@version}",
+      main: "Makeup.Lexers.CLexer"
     ]
   end
 
-  defp build_docs(_) do
-    Mix.Task.run("compile")
-    ex_doc = Path.join(Mix.path_for(:escripts), "ex_doc")
+  # defp aliases do
+  #   [
+  #     docs: &build_docs/1,
+  #     release: "run scripts/release.exs"
+  #   ]
+  # end
 
-    unless File.exists?(ex_doc) do
-      raise "cannot build docs because escript for ex_doc is not installed"
-    end
+  # defp build_docs(_) do
+  #   Mix.Task.run("compile")
+  #   ex_doc = Path.join(Mix.path_for(:escripts), "ex_doc")
 
-    args = ["MakeupC", @version, Mix.Project.compile_path()]
-    opts = ~w[--main Makeup.Lexers.CLexer --source-ref v#{@version} --source-url #{@url}]
-    System.cmd(ex_doc, args ++ opts)
-    Mix.shell().info("Docs built successfully")
-  end
+  #   unless File.exists?(ex_doc) do
+  #     raise "cannot build docs because escript for ex_doc is not installed"
+  #   end
+
+  #   args = ["MakeupC", @version, Mix.Project.compile_path()]
+  #   opts = ~w[--main Makeup.Lexers.CLexer --source-ref v#{@version} --source-url #{@url}]
+  #   System.cmd(ex_doc, args ++ opts)
+  #   Mix.shell().info("Docs built successfully")
+  # end
 end
