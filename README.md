@@ -20,7 +20,8 @@ the languages "c" as well as the extensions ".c" and ".h".
 
 ## Status
 
-This lexer is fairly naive as it doesn't take into account any of the C language's
+This lexer was built to highlight C code in a blog. It works for my purposes
+so I'm happy. It is fairly naive as it doesn't take into account any of the C language's
 type checking. It also has the C++ keywords, but doesn't attempt to do anything fancy
 regarding templates and other fancy type definitions. I needed it just for C, and that
 is what it does.
