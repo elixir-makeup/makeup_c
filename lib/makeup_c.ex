@@ -190,10 +190,6 @@ defmodule Makeup.Lexers.CLexer do
         # Chars
         escape_char,
         normal_char,
-
-        # Bitwise operators must match first
-        # bitshifts
-        # Matching delimiters
       ] ++
       delimiter_pairs ++
       [
