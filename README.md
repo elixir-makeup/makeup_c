@@ -1,6 +1,4 @@
 # MakeupC
-<!-- [![Build Status](https://travis-ci.org/boydm/makeup_c.svg?branch=master)](https://travis-ci.org/boydm/makeup_c)
- -->
 A [Makeup](https://github.com/tmbb/makeup/) lexer for the C language.
 
 ## Installation
@@ -10,7 +8,7 @@ Add `makeup_c` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:makeup_c, "~> 0.1.0"}
+    {:makeup_c, ">= 0.0.0"}
   ]
 end
 ```

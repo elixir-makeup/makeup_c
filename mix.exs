@@ -1,13 +1,13 @@
 defmodule MakeupC.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
-  @url "https://github.com/boydm/makeup_c"
+  @version "0.1.1"
+  @url "https://github.com/elixir-makeup/makeup_c"
 
   def project do
     [
       app: :makeup_c,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.4",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
