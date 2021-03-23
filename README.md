@@ -1,5 +1,8 @@
 # MakeupC
-A [Makeup](https://github.com/tmbb/makeup/) lexer for the C language.
+
+[![Build Status](https://github.com/elixir-makeup/makeup_c/workflows/CI/badge.svg)](https://github.com/elixir-makeup/makeup_c/actions)
+
+A [Makeup](https://github.com/elixir-makeup/makeup/) lexer for the C language.
 
 ## Installation
 
