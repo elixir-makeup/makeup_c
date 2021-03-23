@@ -8,7 +8,7 @@ defmodule MakeupC.MixProject do
     [
       app: :makeup_c,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       # Package
@@ -46,7 +46,7 @@ defmodule MakeupC.MixProject do
   defp deps do
     [
       {:makeup, "~> 1.0"},
-      {:ex_doc, ">= 0.0.0", only: [:dev, :docs]},
+      {:ex_doc, ">= 0.0.0", only: [:dev, :docs]}
     ]
   end
 
@@ -57,5 +57,4 @@ defmodule MakeupC.MixProject do
       main: "Makeup.Lexers.CLexer"
     ]
   end
-
 end
