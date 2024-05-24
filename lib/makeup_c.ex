@@ -104,7 +104,7 @@ defmodule Makeup.Lexers.CLexer do
 
   delimiters_punctuation =
     word_from_list(
-      ~W( ( \) [ ] { }),
+      ~W| ( ) [ ] { }|,
       :punctuation
     )
 
