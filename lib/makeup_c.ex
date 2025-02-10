@@ -76,7 +76,7 @@ defmodule Makeup.Lexers.CLexer do
   operator_name = word_from_list(~W(
       -> + -  * / % ++ -- ~ ^ & && | ||
       =  += -= *= /= &= |= %= ^= << >>
-      <<= >>= > < >= <= == != ! ? : 
+      <<= >>= > < >= <= == != ! ? :
     ))
 
   operator = token(operator_name, :operator)
@@ -104,7 +104,7 @@ defmodule Makeup.Lexers.CLexer do
 
   delimiters_punctuation =
     word_from_list(
-      ~W( ( \) [ ] { }),
+      ~W| ( ) [ ] { }|,
       :punctuation
     )
 
@@ -242,16 +242,16 @@ defmodule Makeup.Lexers.CLexer do
   ###################################################################
 
   @keyword ~W[
-    alignas alignoif asm atomic_cancel atomic_commit 
-    atomic_noexcept auto break case catch class co_await 
-    co_return co_yield compl concept const const_cast 
-    constexpr continue decltype default delete do dynamic_cast 
-    else enum explicit export extern for friend goto if 
-    import inline module mutable namespace new noexcept 
-    nullptr operator private protected public register 
-    reinterpret_cast requires return sizeof static static_assert 
-    static_cast struct switch synchronized template this 
-    thread_local throw try typedef typeid typename union 
+    alignas alignoif asm atomic_cancel atomic_commit
+    atomic_noexcept auto break case catch class co_await
+    co_return co_yield compl concept const const_cast
+    constexpr continue decltype default delete do dynamic_cast
+    else enum explicit export extern for friend goto if
+    import inline module mutable namespace new noexcept
+    nullptr operator private protected public register
+    reinterpret_cast requires return sizeof static static_assert
+    static_cast struct switch synchronized template this
+    thread_local throw try typedef typeid typename union
     using virtual volatile while
   ]
 
