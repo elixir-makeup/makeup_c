@@ -339,6 +339,9 @@ defmodule Makeup.Lexers.CLexer do
   # Step #2: postprocess the list of tokens
   ###################################################################
 
+  # C23 keywords minus the predefined constants (true, false, nullptr),
+  # which are classified as :keyword_constant below, and minus the type
+  # specifiers (bool, int, char, ...) classified as :keyword_type.
   @keyword ~W[
     alignas alignof asm atomic_cancel atomic_commit
     atomic_noexcept auto break case catch class co_await
@@ -346,7 +349,7 @@ defmodule Makeup.Lexers.CLexer do
     constexpr continue decltype default delete do dynamic_cast
     else enum explicit export extern for friend goto if
     import inline module mutable namespace new noexcept
-    nullptr operator private protected public register
+    operator private protected public register
     reinterpret_cast requires restrict return sizeof static static_assert
     static_cast struct switch synchronized template this
     thread_local throw try typedef typeid typename typeof typeof_unqual union
@@ -370,11 +373,20 @@ defmodule Makeup.Lexers.CLexer do
   ]
 
   @keyword_constant ~W[
-    NULL true false
+    NULL nullptr true false
   ]
 
-  @operator_word ~W[and and_eq bitand bitor not not_eq or or_eq xor xor_eq]
-  @name_builtin_pseudo ~W[__FUNCTION__ __FILE__ __LINE__]
+  # __func__ is the C99/C11/C23 standard predefined identifier;
+  # __FUNCTION__ is the GCC/Clang extension. Treat both as builtin
+  # pseudo-identifiers along with the standard predefined macros.
+  @name_builtin_pseudo ~W[
+    __func__ __FUNCTION__ __PRETTY_FUNCTION__
+    __FILE__ __LINE__ __DATE__ __TIME__
+    __STDC__ __STDC_VERSION__ __STDC_HOSTED__
+    __STDC_UTF_16__ __STDC_UTF_32__
+    __VA_ARGS__ __VA_OPT__
+    __has_include __has_c_attribute __has_embed
+  ]
 
   # The `postprocess/1` function will require a major redesign when we decide to support
   # custom `def`-like keywords supplied by the user.
@@ -401,9 +413,6 @@ defmodule Makeup.Lexers.CLexer do
 
   defp postprocess_helper([{:name, attrs, text} | tokens]) when text in @keyword_constant,
     do: [{:keyword_constant, attrs, text} | postprocess_helper(tokens)]
-
-  defp postprocess_helper([{:name, attrs, text} | tokens]) when text in @operator_word,
-    do: [{:operator_word, attrs, text} | postprocess_helper(tokens)]
 
   defp postprocess_helper([{:name, attrs, text} | tokens]) when text in @name_builtin_pseudo,
     do: [{:name_builtin_pseudo, attrs, text} | postprocess_helper(tokens)]

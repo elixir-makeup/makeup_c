@@ -388,14 +388,50 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("void") == [{:keyword_type, %{}, "void"}]
     end
 
-    test "NULL is keyword_constant" do
+    test "NULL and nullptr are keyword_constant" do
       assert lex("NULL") == [{:keyword_constant, %{}, "NULL"}]
+      assert lex("nullptr") == [{:keyword_constant, %{}, "nullptr"}]
     end
 
     test "alignof is recognised (not the typo alignoif)" do
       assert lex("alignof") == [{:keyword, %{}, "alignof"}]
       # alignoif is not a real C identifier; it should fall through to :name.
       assert lex("alignoif") == [{:name, %{}, "alignoif"}]
+    end
+  end
+
+  describe "builtin pseudo identifiers" do
+    test "__func__ (C99) and __FUNCTION__ (GCC)" do
+      assert lex("__func__") == [{:name_builtin_pseudo, %{}, "__func__"}]
+      assert lex("__FUNCTION__") == [{:name_builtin_pseudo, %{}, "__FUNCTION__"}]
+    end
+
+    test "standard predefined macros" do
+      for m <- ~w(__FILE__ __LINE__ __DATE__ __TIME__
+                  __STDC__ __STDC_VERSION__ __STDC_HOSTED__
+                  __VA_ARGS__) do
+        assert lex(m) == [{:name_builtin_pseudo, %{}, m}]
+      end
+    end
+
+    test "C23 __VA_OPT__ and __has_* operators" do
+      assert lex("__VA_OPT__") == [{:name_builtin_pseudo, %{}, "__VA_OPT__"}]
+      assert lex("__has_include") == [{:name_builtin_pseudo, %{}, "__has_include"}]
+      assert lex("__has_c_attribute") == [{:name_builtin_pseudo, %{}, "__has_c_attribute"}]
+    end
+  end
+
+  describe "iso646 macros" do
+    test "iso646 alternative spellings are not C operators" do
+      # `and`, `or`, etc. come from <iso646.h> as macros expanding to &&, ||.
+      # They are NOT C operators (those are the symbols themselves), so the
+      # lexer treats them as plain identifiers.
+      #
+      # `compl` is a C++ alternative-token keyword and is classified as
+      # :keyword (see basic-C++-coverage test) - not in this list.
+      for word <- ~w(and or not xor and_eq or_eq xor_eq not_eq bitand bitor) do
+        assert lex(word) == [{:name, %{}, word}]
+      end
     end
   end
 
