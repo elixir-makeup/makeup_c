@@ -197,6 +197,43 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
                {:string, %{}, ~s(b")}
              ]
     end
+
+    test "encoding-prefixed strings" do
+      assert lex(~s(L"hi")) == [{:string, %{}, ~s(L"hi")}]
+      assert lex(~s(u"hi")) == [{:string, %{}, ~s(u"hi")}]
+      assert lex(~s(U"hi")) == [{:string, %{}, ~s(U"hi")}]
+      assert lex(~s(u8"hi")) == [{:string, %{}, ~s(u8"hi")}]
+    end
+
+    test "hex escape inside string" do
+      assert lex(~S("\xFF")) == [
+               {:string, %{}, ~s(")},
+               {:string_escape, %{}, "\\xFF"},
+               {:string, %{}, ~s(")}
+             ]
+    end
+
+    test "octal escape inside string" do
+      assert lex(~S("\033")) == [
+               {:string, %{}, ~s(")},
+               {:string_escape, %{}, "\\033"},
+               {:string, %{}, ~s(")}
+             ]
+    end
+
+    test "unicode \\u and \\U escapes inside string" do
+      assert lex("\"\\u00E9\"") == [
+               {:string, %{}, ~s(")},
+               {:string_escape, %{}, "\\u00E9"},
+               {:string, %{}, ~s(")}
+             ]
+
+      assert lex("\"\\U0001F600\"") == [
+               {:string, %{}, ~s(")},
+               {:string_escape, %{}, "\\U0001F600"},
+               {:string, %{}, ~s(")}
+             ]
+    end
   end
 
   describe "identifiers" do

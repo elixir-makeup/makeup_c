@@ -248,7 +248,17 @@ defmodule Makeup.Lexers.CLexer do
       string_like("'", "'", combinators_inside_string, :string_char)
     ])
 
-  double_quoted_string = string_like("\"", "\"", combinators_inside_string, :string)
+  # String literals per C23 6.4.5:
+  #   encoding-prefix-opt " s-char-sequence-opt "
+  # encoding-prefix is one of L, u, U, u8.
+  double_quoted_string =
+    choice([
+      string_like("u8\"", "\"", combinators_inside_string, :string),
+      string_like("L\"", "\"", combinators_inside_string, :string),
+      string_like("u\"", "\"", combinators_inside_string, :string),
+      string_like("U\"", "\"", combinators_inside_string, :string),
+      string_like("\"", "\"", combinators_inside_string, :string)
+    ])
 
   line = repeat(lookahead_not(ascii_char([?\n])) |> utf8_string([], 1))
 
