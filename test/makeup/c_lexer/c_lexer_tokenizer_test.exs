@@ -454,6 +454,50 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("#\tinclude") == [{:keyword_pseudo, %{}, "#\tinclude"}]
       assert lex("#  define") == [{:keyword_pseudo, %{}, "#  define"}]
     end
+
+    test "#include <header.h> collapses the angle-bracket header into a string" do
+      assert lex("#include <stdio.h>") == [
+               {:keyword_pseudo, %{}, "#include"},
+               {:whitespace, %{}, " "},
+               {:string, %{}, "<stdio.h>"}
+             ]
+    end
+
+    test "#include <sys/stat.h> with slash" do
+      assert lex("#include <sys/stat.h>") == [
+               {:keyword_pseudo, %{}, "#include"},
+               {:whitespace, %{}, " "},
+               {:string, %{}, "<sys/stat.h>"}
+             ]
+    end
+
+    test "#include \"local.h\" stays a regular string" do
+      assert lex(~s(#include "local.h")) == [
+               {:keyword_pseudo, %{}, "#include"},
+               {:whitespace, %{}, " "},
+               {:string, %{}, ~s("local.h")}
+             ]
+    end
+
+    test "bare < and > outside an #include line are still operators" do
+      assert lex("a < b") == [
+               {:name, %{}, "a"},
+               {:whitespace, %{}, " "},
+               {:operator, %{}, "<"},
+               {:whitespace, %{}, " "},
+               {:name, %{}, "b"}
+             ]
+    end
+
+    test "missing > on the same line: leave tokens as-is" do
+      assert [
+               {:keyword_pseudo, %{}, "#include"},
+               {:whitespace, %{}, " "},
+               {:operator, %{}, "<"},
+               {:name, %{}, "stdio"}
+               | _
+             ] = lex("#include <stdio\n")
+    end
   end
 
   describe "char literals" do

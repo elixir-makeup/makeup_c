@@ -189,6 +189,7 @@ defmodule Makeup.Lexers.CLexer do
     string("#")
     |> optional(ascii_string([?\s, ?\t], min: 1))
     |> concat(identifier)
+    |> lexeme
     |> token(:keyword_pseudo)
 
   punctuation =
@@ -430,8 +431,57 @@ defmodule Makeup.Lexers.CLexer do
   defp postprocess_helper([{:name, attrs, text} | tokens]) when text in @name_builtin_pseudo,
     do: [{:name_builtin_pseudo, attrs, text} | postprocess_helper(tokens)]
 
+  # `#include <header.h>`: collapse the `< ... >` span into a single :string
+  # token. The lexer can't do this in step 1 because `<` and `>` are
+  # ordinary operators in expression context.
+  defp postprocess_helper([{:keyword_pseudo, _, text} = directive | rest]) do
+    if include_directive?(text) do
+      collapse_include_header(directive, rest)
+    else
+      [directive | postprocess_helper(rest)]
+    end
+  end
+
   # Otherwise, don't do anything with the current token and go to the next token.
   defp postprocess_helper([token | tokens]), do: [token | postprocess_helper(tokens)]
+
+  defp include_directive?(text), do: Regex.match?(~r/\A#\s*include\z/, text)
+
+  defp collapse_include_header(directive, tokens) do
+    {ws_tokens, after_ws} =
+      Enum.split_while(tokens, fn
+        {:whitespace, _, _} -> true
+        _ -> false
+      end)
+
+    case extract_angle_header(after_ws) do
+      {:ok, header_token, rest_after} ->
+        [directive] ++ ws_tokens ++ [header_token | postprocess_helper(rest_after)]
+
+      :error ->
+        [directive | postprocess_helper(tokens)]
+    end
+  end
+
+  defp extract_angle_header([{:operator, attrs, "<"} | rest]) do
+    {content, tail} =
+      Enum.split_while(rest, fn
+        {:operator, _, ">"} -> false
+        {:whitespace, _, "\n" <> _} -> false
+        _ -> true
+      end)
+
+    case tail do
+      [{:operator, _, ">"} | rest_after] ->
+        text = "<" <> Enum.map_join(content, "", &to_string(elem(&1, 2))) <> ">"
+        {:ok, {:string, attrs, text}, rest_after}
+
+      _ ->
+        :error
+    end
+  end
+
+  defp extract_angle_header(_), do: :error
 
   # Public API
   @impl Makeup.Lexer
