@@ -351,6 +351,9 @@ defmodule Makeup.Lexers.CLexer do
     static_cast struct switch synchronized template this
     thread_local throw try typedef typeid typename typeof typeof_unqual union
     using virtual volatile while
+    _Alignas _Alignof _Atomic _BitInt _Bool _Complex
+    _Decimal32 _Decimal64 _Decimal128 _Generic _Imaginary
+    _Noreturn _Static_assert _Thread_local
   ]
 
   @keyword_type ~W[

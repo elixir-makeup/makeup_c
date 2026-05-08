@@ -328,6 +328,14 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       end
     end
 
+    test "underscore-capital alternative spellings" do
+      for kw <- ~w(_Alignas _Alignof _Atomic _BitInt _Bool _Complex
+                   _Decimal32 _Decimal64 _Decimal128 _Generic _Imaginary
+                   _Noreturn _Static_assert _Thread_local) do
+        assert lex(kw) == [{:keyword, %{}, kw}]
+      end
+    end
+
     test "basic C++ keyword coverage" do
       # No template/namespace-aware logic; these just highlight as keywords
       # so the same lexer can be used for .cpp/.h files.
