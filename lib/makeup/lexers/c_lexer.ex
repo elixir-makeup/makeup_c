@@ -205,7 +205,16 @@ defmodule Makeup.Lexers.CLexer do
 
   comment = many_surrounded_by(parsec(:root_element), "/*", "*/")
 
+  # C23 6.7.12 / N3220: `[[ … ]]` attribute sequences. The whole span
+  # is emitted as a single :name_decorator token; internal structure is
+  # not separately highlighted (most real attributes are just simple
+  # identifiers like `[[nodiscard]]` or `[[gnu::aligned(8)]]` where the
+  # decorator colour is the meaningful signal). Listed before the bare
+  # `[`/`]` punctuation so the double-bracket form matches first.
+  attribute = string_like("[[", "]]", [], :name_decorator)
+
   delimiter_pairs = [
+    attribute,
     delimiters_punctuation,
     comment
   ]

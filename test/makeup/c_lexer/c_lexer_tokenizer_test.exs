@@ -521,6 +521,45 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
     end
   end
 
+  describe "C23 attributes" do
+    test "simple attribute" do
+      assert lex("[[nodiscard]]") == [{:name_decorator, %{}, "[[nodiscard]]"}]
+      assert lex("[[maybe_unused]]") == [{:name_decorator, %{}, "[[maybe_unused]]"}]
+    end
+
+    test "C23 standard attributes" do
+      for attr <- ~w(nodiscard maybe_unused deprecated fallthrough noreturn
+                     unsequenced reproducible) do
+        text = "[[" <> attr <> "]]"
+        assert lex(text) == [{:name_decorator, %{}, text}]
+      end
+    end
+
+    test "namespaced attribute" do
+      assert lex("[[gnu::aligned(8)]]") == [
+               {:name_decorator, %{}, "[[gnu::aligned(8)]]"}
+             ]
+    end
+
+    test "attribute does not eat following code" do
+      assert [
+               {:name_decorator, %{}, "[[nodiscard]]"},
+               {:whitespace, %{}, " "},
+               {:keyword_type, %{}, "int"}
+               | _
+             ] = lex("[[nodiscard]] int f();")
+    end
+
+    test "single brackets stay as punctuation" do
+      assert lex("a[0]") == [
+               {:name, %{}, "a"},
+               {:punctuation, %{group_id: "group-1"}, "["},
+               {:number_integer, %{}, "0"},
+               {:punctuation, %{group_id: "group-1"}, "]"}
+             ]
+    end
+  end
+
   describe "smoke test" do
     test "minimal int declaration" do
       assert lex("int a = 0;") == [
