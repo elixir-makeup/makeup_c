@@ -159,7 +159,7 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
 
   describe "type keywords" do
     test "primitive types" do
-      for t <- ~w(int char short long float double signed unsigned) do
+      for t <- ~w(int char short long float double signed unsigned void) do
         assert lex(t) == [{:keyword_type, %{}, t}]
       end
     end
@@ -168,6 +168,24 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       for t <- ~w(int8_t uint8_t int16_t uint16_t int32_t uint32_t int64_t uint64_t) do
         assert lex(t) == [{:keyword_type, %{}, t}]
       end
+    end
+  end
+
+  describe "constants" do
+    test "true/false are keyword_constant; void is a type, not a constant" do
+      assert lex("true") == [{:keyword_constant, %{}, "true"}]
+      assert lex("false") == [{:keyword_constant, %{}, "false"}]
+      assert lex("void") == [{:keyword_type, %{}, "void"}]
+    end
+
+    test "NULL is currently lexed as :name_constant (Phase 1c will upgrade to :keyword_constant)" do
+      assert lex("NULL") == [{:name_constant, %{}, "NULL"}]
+    end
+
+    test "alignof is recognised (not the typo alignoif)" do
+      assert lex("alignof") == [{:keyword, %{}, "alignof"}]
+      # alignoif is not a real C identifier; it should fall through to :name.
+      assert lex("alignoif") == [{:name, %{}, "alignoif"}]
     end
   end
 

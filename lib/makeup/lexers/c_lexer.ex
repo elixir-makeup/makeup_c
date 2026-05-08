@@ -242,27 +242,27 @@ defmodule Makeup.Lexers.CLexer do
   ###################################################################
 
   @keyword ~W[
-    alignas alignoif asm atomic_cancel atomic_commit 
-    atomic_noexcept auto break case catch class co_await 
-    co_return co_yield compl concept const const_cast 
-    constexpr continue decltype default delete do dynamic_cast 
-    else enum explicit export extern for friend goto if 
-    import inline module mutable namespace new noexcept 
-    nullptr operator private protected public register 
-    reinterpret_cast requires return sizeof static static_assert 
-    static_cast struct switch synchronized template this 
-    thread_local throw try typedef typeid typename union 
+    alignas alignof asm atomic_cancel atomic_commit
+    atomic_noexcept auto break case catch class co_await
+    co_return co_yield compl concept const const_cast
+    constexpr continue decltype default delete do dynamic_cast
+    else enum explicit export extern for friend goto if
+    import inline module mutable namespace new noexcept
+    nullptr operator private protected public register
+    reinterpret_cast requires return sizeof static static_assert
+    static_cast struct switch synchronized template this
+    thread_local throw try typedef typeid typename union
     using virtual volatile while
   ]
 
   @keyword_type ~W[
-    bool byte int long unsigned double char short signed float wchar_t
+    bool int long unsigned double char short signed float void wchar_t
     char16_t char32_t int8_t uint8_t int16_t uint16_t int32_t uint32_t
     int64_t uint64_t
   ]
 
   @keyword_constant ~W[
-    NULL true false void
+    NULL true false
   ]
 
   @operator_word ~W[and and_eq bitand bitor not not_eq or or_eq xor xor_eq]
