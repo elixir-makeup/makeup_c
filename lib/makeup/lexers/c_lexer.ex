@@ -28,14 +28,34 @@ defmodule Makeup.Lexers.CLexer do
   hex_digits = ascii_string([?0..?9, ?a..?f, ?A..?F], min: 1)
   oct_digits = ascii_string([?0..?7], min: 1)
 
+  # C23 6.4.4.1 integer-suffix:
+  #   unsigned-suffix optional(size-suffix)
+  # | size-suffix optional(unsigned-suffix)
+  # where size-suffix is long-suffix (l/L), long-long-suffix (ll/LL), or
+  # bit-precise-int-suffix (wb/WB). The `ll`/`LL` form must be a single
+  # case; we reject `lL`/`Ll` by listing the pairs explicitly.
+  unsigned_suffix = choice([string("u"), string("U")])
+  long_long_suffix = choice([string("ll"), string("LL")])
+  long_suffix = choice([string("l"), string("L")])
+  bit_precise_suffix = choice([string("wb"), string("WB")])
+  size_suffix = choice([long_long_suffix, long_suffix, bit_precise_suffix])
+
+  integer_suffix =
+    choice([
+      unsigned_suffix |> optional(size_suffix),
+      size_suffix |> optional(unsigned_suffix)
+    ])
+
   number_bin =
     choice([string("0b"), string("0B")])
     |> concat(bin_digits)
+    |> optional(integer_suffix)
     |> token(:number_bin)
 
   number_hex =
     choice([string("0x"), string("0X")])
     |> concat(hex_digits)
+    |> optional(integer_suffix)
     |> token(:number_hex)
 
   # Octal: traditional C `0` prefix (`0755`) and the C23 `0o`/`0O` prefix
@@ -47,9 +67,13 @@ defmodule Makeup.Lexers.CLexer do
       choice([string("0o"), string("0O")]) |> concat(oct_digits),
       string("0") |> concat(oct_digits)
     ])
+    |> optional(integer_suffix)
     |> token(:number_oct)
 
-  number_integer = token(digits, :number_integer)
+  number_integer =
+    digits
+    |> optional(integer_suffix)
+    |> token(:number_integer)
 
   float_scientific_notation_part =
     ascii_string([?e, ?E], 1)

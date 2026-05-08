@@ -78,6 +78,33 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("0") == [{:number_integer, %{}, "0"}]
     end
 
+    test "decimal integer suffixes" do
+      assert lex("42u") == [{:number_integer, %{}, "42u"}]
+      assert lex("42U") == [{:number_integer, %{}, "42U"}]
+      assert lex("42l") == [{:number_integer, %{}, "42l"}]
+      assert lex("42L") == [{:number_integer, %{}, "42L"}]
+      assert lex("42ll") == [{:number_integer, %{}, "42ll"}]
+      assert lex("42LL") == [{:number_integer, %{}, "42LL"}]
+      assert lex("42ul") == [{:number_integer, %{}, "42ul"}]
+      assert lex("42lu") == [{:number_integer, %{}, "42lu"}]
+      assert lex("42ull") == [{:number_integer, %{}, "42ull"}]
+      assert lex("42llU") == [{:number_integer, %{}, "42llU"}]
+    end
+
+    test "C23 _BitInt suffix" do
+      assert lex("42wb") == [{:number_integer, %{}, "42wb"}]
+      assert lex("42WB") == [{:number_integer, %{}, "42WB"}]
+      assert lex("42uwb") == [{:number_integer, %{}, "42uwb"}]
+      assert lex("42WBU") == [{:number_integer, %{}, "42WBU"}]
+    end
+
+    test "hex/octal/binary integer suffixes" do
+      assert lex("0xFFu") == [{:number_hex, %{}, "0xFFu"}]
+      assert lex("0xFFULL") == [{:number_hex, %{}, "0xFFULL"}]
+      assert lex("0755UL") == [{:number_oct, %{}, "0755UL"}]
+      assert lex("0b101u") == [{:number_bin, %{}, "0b101u"}]
+    end
+
     test "float without exponent" do
       assert lex("1.5") == [{:number_float, %{}, "1.5"}]
       assert lex("0.0") == [{:number_float, %{}, "0.0"}]
