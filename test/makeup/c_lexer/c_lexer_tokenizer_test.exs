@@ -149,6 +149,21 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
         assert lex("1.0" <> s) == [{:number_float, %{}, "1.0" <> s}]
       end
     end
+
+    test "hex floats" do
+      assert lex("0x1.fp10") == [{:number_float, %{}, "0x1.fp10"}]
+      assert lex("0X1.Fp10") == [{:number_float, %{}, "0X1.Fp10"}]
+      assert lex("0x1p10") == [{:number_float, %{}, "0x1p10"}]
+      assert lex("0x1.p-3") == [{:number_float, %{}, "0x1.p-3"}]
+      assert lex("0x.fp+5") == [{:number_float, %{}, "0x.fp+5"}]
+      assert lex("0x1.fp10f") == [{:number_float, %{}, "0x1.fp10f"}]
+      assert lex("0x1p10L") == [{:number_float, %{}, "0x1p10L"}]
+    end
+
+    test "hex integer is unaffected by hex float" do
+      assert lex("0xFF") == [{:number_hex, %{}, "0xFF"}]
+      assert lex("0x1234") == [{:number_hex, %{}, "0x1234"}]
+    end
   end
 
   describe "strings" do

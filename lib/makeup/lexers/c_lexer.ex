@@ -130,6 +130,29 @@ defmodule Makeup.Lexers.CLexer do
     |> optional(float_suffix)
     |> token(:number_float)
 
+  # Hex floats per C99/C23 6.4.4.2:
+  #   0x<hex>.<hex>p[+-]?<digits>
+  #   0x<hex>.p[+-]?<digits>
+  #   0x.<hex>p[+-]?<digits>
+  #   0x<hex>p[+-]?<digits>
+  # The binary exponent (`p`/`P`) is mandatory.
+  hex_exponent =
+    ascii_string([?p, ?P], 1)
+    |> optional(ascii_char([?+, ?-]))
+    |> concat(digits)
+
+  number_hex_float =
+    choice([string("0x"), string("0X")])
+    |> choice([
+      hex_digits |> string(".") |> concat(hex_digits),
+      hex_digits |> string("."),
+      string(".") |> concat(hex_digits),
+      hex_digits |> lookahead(ascii_string([?p, ?P], 1))
+    ])
+    |> concat(hex_exponent)
+    |> optional(float_suffix)
+    |> token(:number_float)
+
   # C identifier: [A-Za-z_][A-Za-z0-9_]*
   identifier =
     ascii_string([?A..?Z, ?a..?z, ?_], 1)
@@ -217,6 +240,9 @@ defmodule Makeup.Lexers.CLexer do
           # Numbers
           number_bin,
           number_oct,
+          # Hex float (0x1.fp10) must come before number_hex; both share
+          # the 0x prefix and the float form is the more specific one.
+          number_hex_float,
           number_hex,
           # Floats must come before integers
           number_float,
