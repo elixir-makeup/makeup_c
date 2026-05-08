@@ -182,8 +182,12 @@ defmodule Makeup.Lexers.CLexer do
 
   operator = token(operator_name, :operator)
 
+  # Preprocessor directives. Per 6.10 the `#` may be followed by
+  # arbitrary horizontal whitespace before the directive name (so
+  # `# include`, `#\tinclude` etc. are valid).
   directive =
     string("#")
+    |> optional(ascii_string([?\s, ?\t], min: 1))
     |> concat(identifier)
     |> token(:keyword_pseudo)
 

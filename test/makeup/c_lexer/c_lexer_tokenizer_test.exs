@@ -441,6 +441,19 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("#define") == [{:keyword_pseudo, %{}, "#define"}]
       assert lex("#ifdef") == [{:keyword_pseudo, %{}, "#ifdef"}]
     end
+
+    test "all C23 directive names" do
+      for d <- ~w(include define undef if ifdef ifndef elif else endif
+                  elifdef elifndef error warning pragma line embed) do
+        assert lex("#" <> d) == [{:keyword_pseudo, %{}, "#" <> d}]
+      end
+    end
+
+    test "whitespace allowed between # and directive name" do
+      assert lex("# include") == [{:keyword_pseudo, %{}, "# include"}]
+      assert lex("#\tinclude") == [{:keyword_pseudo, %{}, "#\tinclude"}]
+      assert lex("#  define") == [{:keyword_pseudo, %{}, "#  define"}]
+    end
   end
 
   describe "char literals" do
