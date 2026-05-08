@@ -113,6 +113,25 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
     test "float with scientific exponent" do
       assert lex("1.5e10") == [{:number_float, %{}, "1.5e10"}]
       assert lex("2.0E-3") == [{:number_float, %{}, "2.0E-3"}]
+      assert lex("1.0e+5") == [{:number_float, %{}, "1.0e+5"}]
+    end
+
+    test "float suffixes (f, F, l, L)" do
+      for s <- ~w(f F l L) do
+        assert lex("1.5" <> s) == [{:number_float, %{}, "1.5" <> s}]
+      end
+    end
+
+    test "C23 binary fixed-width float suffixes" do
+      for s <- ~w(f16 f32 f64 f128 F16 F32 F64 F128 bf16 BF16) do
+        assert lex("1.0" <> s) == [{:number_float, %{}, "1.0" <> s}]
+      end
+    end
+
+    test "C23 decimal float suffixes" do
+      for s <- ~w(df dd dl DF DD DL) do
+        assert lex("1.0" <> s) == [{:number_float, %{}, "1.0" <> s}]
+      end
     end
   end
 

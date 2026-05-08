@@ -80,11 +80,43 @@ defmodule Makeup.Lexers.CLexer do
     |> optional(ascii_char([?+, ?-]))
     |> concat(digits)
 
+  # C23 6.4.4.2 floating-suffix:
+  #   f, F, l, L,
+  #   df, dd, dl, DF, DD, DL  (decimal floating types)
+  #   f16, f32, f64, f128, F16, F32, F64, F128 (binary fixed-width)
+  #   bf16, BF16 (brain floating)
+  # Order matters: try multi-character suffixes before the single-char
+  # `f`/`F` to avoid swallowing only the first letter.
+  float_suffix =
+    choice([
+      string("f128"),
+      string("F128"),
+      string("f64"),
+      string("F64"),
+      string("f32"),
+      string("F32"),
+      string("f16"),
+      string("F16"),
+      string("bf16"),
+      string("BF16"),
+      string("df"),
+      string("dd"),
+      string("dl"),
+      string("DF"),
+      string("DD"),
+      string("DL"),
+      string("f"),
+      string("F"),
+      string("l"),
+      string("L")
+    ])
+
   number_float =
     digits
     |> string(".")
     |> concat(digits)
     |> optional(float_scientific_notation_part)
+    |> optional(float_suffix)
     |> token(:number_float)
 
   # C identifier: [A-Za-z_][A-Za-z0-9_]*
