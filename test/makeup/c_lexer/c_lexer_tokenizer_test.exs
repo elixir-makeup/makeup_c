@@ -94,6 +94,14 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("foo123") == [{:name, %{}, "foo123"}]
     end
 
+    test "underscore-prefixed identifier is a name (not a comment)" do
+      # In C, leading underscores are reserved to the implementation but
+      # they still form ordinary identifiers. They must not be rendered
+      # as comments (that was an Elixir convention).
+      assert lex("_foo") == [{:name, %{}, "_foo"}]
+      assert lex("_internal_state") == [{:name, %{}, "_internal_state"}]
+    end
+
     test "function call (name immediately followed by parens)" do
       assert lex("foo(1)") == [
                {:name_function, %{}, "foo"},
