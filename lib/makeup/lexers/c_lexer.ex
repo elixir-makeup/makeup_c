@@ -19,7 +19,7 @@ defmodule Makeup.Lexers.CLexer do
   # This way, we immediately know which of the combinators we can compose.
   # TODO: check we're following this convention
 
-  whitespace = ascii_string([?\r, ?\s, ?\n, ?\f], min: 1) |> token(:whitespace)
+  whitespace = ascii_string([?\s, ?\t, ?\r, ?\n, ?\f, ?\v], min: 1) |> token(:whitespace)
 
   any_char = utf8_char([]) |> token(:error)
 

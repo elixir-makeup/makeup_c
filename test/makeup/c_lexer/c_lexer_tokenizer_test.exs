@@ -9,14 +9,15 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
   describe "whitespace" do
     test "single characters" do
       assert lex(" ") == [{:whitespace, %{}, " "}]
+      assert lex("\t") == [{:whitespace, %{}, "\t"}]
       assert lex("\n") == [{:whitespace, %{}, "\n"}]
       assert lex("\r") == [{:whitespace, %{}, "\r"}]
       assert lex("\f") == [{:whitespace, %{}, "\f"}]
+      assert lex("\v") == [{:whitespace, %{}, "\v"}]
     end
 
     test "multiple characters collapse into one token" do
-      # Note: \t is not currently a recognised whitespace character; see Phase 1.
-      assert lex("  \n\f\n  ") == [{:whitespace, %{}, "  \n\f\n  "}]
+      assert lex("  \n\t\n  ") == [{:whitespace, %{}, "  \n\t\n  "}]
     end
   end
 
