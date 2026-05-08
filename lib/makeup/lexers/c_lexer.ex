@@ -54,24 +54,15 @@ defmodule Makeup.Lexers.CLexer do
     |> optional(float_scientific_notation_part)
     |> token(:number_float)
 
-  # Yes, Elixir supports much more than this.
-  # TODO: adapt the code from the official tokenizer, which parses the unicode database
-  variable_name =
-    ascii_string([?a..?z, ?_], 1)
-    |> optional(ascii_string([?a..?z, ?_, ?0..?9, ?A..?Z], min: 1))
-    |> optional(ascii_string([??, ?!], 1))
+  # C identifier: [A-Za-z_][A-Za-z0-9_]*
+  identifier =
+    ascii_string([?A..?Z, ?a..?z, ?_], 1)
+    |> optional(ascii_string([?A..?Z, ?a..?z, ?_, ?0..?9], min: 1))
 
-  # Can also be a function name
   variable =
-    variable_name
+    identifier
     |> lexeme
     |> token(:name)
-
-  define_name =
-    ascii_string([?A..?Z], 1)
-    |> optional(ascii_string([?a..?z, ?_, ?0..?9, ?A..?Z], min: 1))
-
-  define = token(define_name, :name_constant)
 
   operator_name = word_from_list(~W(
       -> + -  * / % ++ -- ~ ^ & && | ||
@@ -93,7 +84,7 @@ defmodule Makeup.Lexers.CLexer do
 
   directive =
     string("#")
-    |> concat(variable_name)
+    |> concat(identifier)
     |> token(:keyword_pseudo)
 
   punctuation =
@@ -200,7 +191,6 @@ defmodule Makeup.Lexers.CLexer do
           number_integer,
           # Names
           variable,
-          define,
           punctuation,
           # If we can't parse any of the above, we highlight the next character as an error
           # and proceed from there.

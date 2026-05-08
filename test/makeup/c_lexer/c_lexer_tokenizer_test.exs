@@ -94,6 +94,12 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("foo123") == [{:name, %{}, "foo123"}]
     end
 
+    test "uppercase identifier is also a name (no separate name_constant)" do
+      assert lex("FOO") == [{:name, %{}, "FOO"}]
+      assert lex("MyType") == [{:name, %{}, "MyType"}]
+      assert lex("ALL_CAPS_123") == [{:name, %{}, "ALL_CAPS_123"}]
+    end
+
     test "underscore-prefixed identifier is a name (not a comment)" do
       # In C, leading underscores are reserved to the implementation but
       # they still form ordinary identifiers. They must not be rendered
@@ -208,8 +214,8 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("void") == [{:keyword_type, %{}, "void"}]
     end
 
-    test "NULL is currently lexed as :name_constant (Phase 1c will upgrade to :keyword_constant)" do
-      assert lex("NULL") == [{:name_constant, %{}, "NULL"}]
+    test "NULL is keyword_constant" do
+      assert lex("NULL") == [{:keyword_constant, %{}, "NULL"}]
     end
 
     test "alignof is recognised (not the typo alignoif)" do
