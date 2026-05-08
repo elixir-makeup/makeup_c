@@ -22,11 +22,22 @@ defmodule Makeup.Lexers.CLexer do
 
   any_char = utf8_char([]) |> token(:error)
 
-  # Numbers
-  digits = ascii_string([?0..?9], min: 1)
-  bin_digits = ascii_string([?0..?1], min: 1)
-  hex_digits = ascii_string([?0..?9, ?a..?f, ?A..?F], min: 1)
-  oct_digits = ascii_string([?0..?7], min: 1)
+  # Numbers.
+  #
+  # C23 introduced the digit separator `'`: a single quote may appear
+  # between any two digits inside a numeric constant (1'000'000,
+  # 0xFFFF'FFFF). The separator is only valid *between* two digits, never
+  # leading or trailing - otherwise `42'a'` would eat the opening quote of
+  # the following char literal.
+  digit_seq = fn ranges ->
+    run = ascii_string(ranges, min: 1)
+    run |> repeat(string("'") |> concat(ascii_string(ranges, min: 1)))
+  end
+
+  digits = digit_seq.([?0..?9])
+  bin_digits = digit_seq.([?0..?1])
+  hex_digits = digit_seq.([?0..?9, ?a..?f, ?A..?F])
+  oct_digits = digit_seq.([?0..?7])
 
   # C23 6.4.4.1 integer-suffix:
   #   unsigned-suffix optional(size-suffix)

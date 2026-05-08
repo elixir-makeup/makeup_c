@@ -164,6 +164,22 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("0xFF") == [{:number_hex, %{}, "0xFF"}]
       assert lex("0x1234") == [{:number_hex, %{}, "0x1234"}]
     end
+
+    test "C23 digit separator (')" do
+      assert lex("1'000") == [{:number_integer, %{}, "1'000"}]
+      assert lex("1'000'000") == [{:number_integer, %{}, "1'000'000"}]
+      assert lex("0xFFFF'FFFF") == [{:number_hex, %{}, "0xFFFF'FFFF"}]
+      assert lex("0b1010'1010") == [{:number_bin, %{}, "0b1010'1010"}]
+      assert lex("0o755'755") == [{:number_oct, %{}, "0o755'755"}]
+      assert lex("1'234.567'89") == [{:number_float, %{}, "1'234.567'89"}]
+    end
+
+    test "trailing ' is not absorbed into a number" do
+      # `42'` followed by something else: the `'` must NOT be consumed
+      # as part of the number, otherwise the next char literal's opening
+      # quote gets eaten.
+      assert [{:number_integer, %{}, "42"} | _] = lex("42';")
+    end
   end
 
   describe "strings" do
