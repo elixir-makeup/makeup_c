@@ -233,6 +233,22 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
     end
   end
 
+  describe "no Elixir-isms" do
+    test "ternary ? is just an operator (not a char literal prefix)" do
+      assert lex("a ? b : c") == [
+               {:name, %{}, "a"},
+               {:whitespace, %{}, " "},
+               {:operator, %{}, "?"},
+               {:whitespace, %{}, " "},
+               {:name, %{}, "b"},
+               {:whitespace, %{}, " "},
+               {:operator, %{}, ":"},
+               {:whitespace, %{}, " "},
+               {:name, %{}, "c"}
+             ]
+    end
+  end
+
   describe "smoke test" do
     test "minimal int declaration" do
       assert lex("int a = 0;") == [

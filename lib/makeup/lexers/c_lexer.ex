@@ -72,16 +72,6 @@ defmodule Makeup.Lexers.CLexer do
 
   operator = token(operator_name, :operator)
 
-  normal_char =
-    string("?")
-    |> utf8_string([], 1)
-    |> token(:string_char)
-
-  escape_char =
-    string("?\\")
-    |> utf8_string([], 1)
-    |> token(:string_char)
-
   directive =
     string("#")
     |> concat(identifier)
@@ -106,15 +96,6 @@ defmodule Makeup.Lexers.CLexer do
     comment
   ]
 
-  normal_atom_name =
-    utf8_string([?A..?Z, ?a..?z, ?_], 1)
-    |> optional(utf8_string([?A..?Z, ?a..?z, ?_, ?0..?9, ?@], min: 1))
-
-  # normal_atom =
-  #   string(":")
-  #   |> choice([operator_name, normal_atom_name])
-  #   |> token(:string_symbol)
-
   unicode_char_in_string =
     string("\\u")
     |> ascii_string([?0..?9, ?a..?f, ?A..?F], 4)
@@ -130,26 +111,7 @@ defmodule Makeup.Lexers.CLexer do
     escaped_char
   ]
 
-  string_keyword =
-    choice([
-      string_like("\"", "\"", combinators_inside_string, :string_symbol),
-      string_like("'", "'", combinators_inside_string, :string_symbol)
-    ])
-    |> concat(token(string(":"), :punctuation))
-
-  normal_keyword =
-    choice([operator_name, normal_atom_name])
-    |> token(:string_symbol)
-    |> concat(token(string(":"), :punctuation))
-
-  keyword =
-    choice([
-      normal_keyword,
-      string_keyword
-    ])
-    |> concat(whitespace)
-
-  double_quoted_string_interpol = string_like("\"", "\"", combinators_inside_string, :string)
+  double_quoted_string = string_like("\"", "\"", combinators_inside_string, :string)
 
   line = repeat(lookahead_not(ascii_char([?\n])) |> utf8_string([], 1))
 
@@ -167,17 +129,11 @@ defmodule Makeup.Lexers.CLexer do
         # Comments
         multiline_comment,
         inline_comment,
-        # Syntax sugar for keyword lists (must come before variables and strings)
+        # Preprocessor directive (must come before operators because of #)
         directive,
-        keyword,
         # Strings
-        double_quoted_string_interpol
+        double_quoted_string
       ] ++
-        [
-          # Chars
-          escape_char,
-          normal_char
-        ] ++
         delimiter_pairs ++
         [
           # Operators
