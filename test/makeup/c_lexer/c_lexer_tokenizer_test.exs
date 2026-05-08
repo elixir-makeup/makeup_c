@@ -155,6 +155,28 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
         assert lex(kw) == [{:keyword, %{}, kw}]
       end
     end
+
+    test "C99/C11/C23 keywords" do
+      # nullptr is also a C23 keyword but classified as :keyword_constant
+      # for highlighting (see the constants describe block).
+      for kw <- ~w(restrict alignas alignof constexpr static_assert
+                   thread_local typeof typeof_unqual) do
+        assert lex(kw) == [{:keyword, %{}, kw}]
+      end
+    end
+
+    test "basic C++ keyword coverage" do
+      # No template/namespace-aware logic; these just highlight as keywords
+      # so the same lexer can be used for .cpp/.h files.
+      for cxx <- ~w(class namespace template typename try catch throw
+                    public private protected friend virtual operator
+                    explicit export delete new this co_await co_return
+                    co_yield concept requires decltype const_cast
+                    static_cast dynamic_cast reinterpret_cast typeid
+                    using mutable noexcept module import) do
+        assert lex(cxx) == [{:keyword, %{}, cxx}], "#{cxx} did not lex as :keyword"
+      end
+    end
   end
 
   describe "type keywords" do

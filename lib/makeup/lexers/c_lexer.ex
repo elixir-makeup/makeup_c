@@ -249,9 +249,9 @@ defmodule Makeup.Lexers.CLexer do
     else enum explicit export extern for friend goto if
     import inline module mutable namespace new noexcept
     nullptr operator private protected public register
-    reinterpret_cast requires return sizeof static static_assert
+    reinterpret_cast requires restrict return sizeof static static_assert
     static_cast struct switch synchronized template this
-    thread_local throw try typedef typeid typename union
+    thread_local throw try typedef typeid typename typeof typeof_unqual union
     using virtual volatile while
   ]
 
