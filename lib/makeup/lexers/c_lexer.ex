@@ -206,20 +206,47 @@ defmodule Makeup.Lexers.CLexer do
     comment
   ]
 
-  unicode_char_in_string =
-    string("\\u")
-    |> ascii_string([?0..?9, ?a..?f, ?A..?F], 4)
+  unicode_escape =
+    choice([
+      string("\\u") |> ascii_string([?0..?9, ?a..?f, ?A..?F], 4),
+      string("\\U") |> ascii_string([?0..?9, ?a..?f, ?A..?F], 8)
+    ])
     |> token(:string_escape)
 
-  escaped_char =
+  hex_escape =
+    string("\\x")
+    |> ascii_string([?0..?9, ?a..?f, ?A..?F], min: 1)
+    |> token(:string_escape)
+
+  octal_escape =
+    string("\\")
+    |> ascii_string([?0..?7], min: 1, max: 3)
+    |> token(:string_escape)
+
+  named_escape =
     string("\\")
     |> utf8_string([], 1)
     |> token(:string_escape)
 
   combinators_inside_string = [
-    unicode_char_in_string,
-    escaped_char
+    unicode_escape,
+    hex_escape,
+    octal_escape,
+    named_escape
   ]
+
+  # Character constants per C23 6.4.4.4:
+  #   encoding-prefix-opt ' c-char-sequence '
+  # encoding-prefix is one of L, u, U, u8.
+  # Order matters: u8 must come before u so it isn't truncated.
+  char_literal =
+    choice([
+      string_like("u8'", "'", combinators_inside_string, :string_char),
+      string_like("L'", "'", combinators_inside_string, :string_char),
+      string_like("u'", "'", combinators_inside_string, :string_char),
+      string_like("U'", "'", combinators_inside_string, :string_char),
+      string_like("'", "'", combinators_inside_string, :string_char)
+    ])
 
   double_quoted_string = string_like("\"", "\"", combinators_inside_string, :string)
 
@@ -241,7 +268,9 @@ defmodule Makeup.Lexers.CLexer do
         inline_comment,
         # Preprocessor directive (must come before operators because of #)
         directive,
-        # Strings
+        # Strings and char literals (must come before identifiers because of
+        # the L / u / U / u8 prefixes).
+        char_literal,
         double_quoted_string
       ] ++
         delimiter_pairs ++

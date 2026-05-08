@@ -345,6 +345,55 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
     end
   end
 
+  describe "char literals" do
+    test "plain single-character literal" do
+      assert lex("'a'") == [{:string_char, %{}, "'a'"}]
+      assert lex("'Z'") == [{:string_char, %{}, "'Z'"}]
+    end
+
+    test "named escape inside char literal" do
+      assert lex("'\\n'") == [
+               {:string_char, %{}, "'"},
+               {:string_escape, %{}, "\\n"},
+               {:string_char, %{}, "'"}
+             ]
+    end
+
+    test "hex escape inside char literal" do
+      assert lex("'\\xFF'") == [
+               {:string_char, %{}, "'"},
+               {:string_escape, %{}, "\\xFF"},
+               {:string_char, %{}, "'"}
+             ]
+    end
+
+    test "octal escape inside char literal" do
+      assert lex("'\\033'") == [
+               {:string_char, %{}, "'"},
+               {:string_escape, %{}, "\\033"},
+               {:string_char, %{}, "'"}
+             ]
+    end
+
+    test "encoding-prefixed char literals" do
+      assert lex("L'a'") == [{:string_char, %{}, "L'a'"}]
+      assert lex("u'a'") == [{:string_char, %{}, "u'a'"}]
+      assert lex("U'a'") == [{:string_char, %{}, "U'a'"}]
+      assert lex("u8'a'") == [{:string_char, %{}, "u8'a'"}]
+    end
+
+    test "char literal does not eat surrounding code" do
+      assert lex("c = 'a';") == [
+               {:name, %{}, "c"},
+               {:whitespace, %{}, " "},
+               {:operator, %{}, "="},
+               {:whitespace, %{}, " "},
+               {:string_char, %{}, "'a'"},
+               {:punctuation, %{}, ";"}
+             ]
+    end
+  end
+
   describe "no Elixir-isms" do
     test "ternary ? is just an operator (not a char literal prefix)" do
       assert lex("a ? b : c") == [
