@@ -110,6 +110,22 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       assert lex("0.0") == [{:number_float, %{}, "0.0"}]
     end
 
+    test "float with empty fractional part (5.)" do
+      assert lex("5.") == [{:number_float, %{}, "5."}]
+      assert lex("100.") == [{:number_float, %{}, "100."}]
+    end
+
+    test "float with empty integer part (.5)" do
+      assert lex(".5") == [{:number_float, %{}, ".5"}]
+      assert lex(".25e3") == [{:number_float, %{}, ".25e3"}]
+    end
+
+    test "float with no decimal point but exponent (1e10)" do
+      assert lex("1e10") == [{:number_float, %{}, "1e10"}]
+      assert lex("3E-5") == [{:number_float, %{}, "3E-5"}]
+      assert lex("1e10f") == [{:number_float, %{}, "1e10f"}]
+    end
+
     test "float with scientific exponent" do
       assert lex("1.5e10") == [{:number_float, %{}, "1.5e10"}]
       assert lex("2.0E-3") == [{:number_float, %{}, "2.0E-3"}]

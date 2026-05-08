@@ -111,10 +111,21 @@ defmodule Makeup.Lexers.CLexer do
       string("L")
     ])
 
+  # Decimal floating constants per C23 6.4.4.2 fragment-significand:
+  #   digits . digits     (1.5)
+  #   digits .            (5.)
+  #   . digits            (.5)
+  #   digits exponent     (1e10)
   number_float =
-    digits
-    |> string(".")
-    |> concat(digits)
+    choice([
+      # Either side may be empty, but not both.
+      digits |> string(".") |> concat(digits),
+      digits |> string("."),
+      string(".") |> concat(digits),
+      # No fractional part, but exponent present (handled via the
+      # scientific_notation suffix below).
+      digits |> lookahead(ascii_string([?e, ?E], 1))
+    ])
     |> optional(float_scientific_notation_part)
     |> optional(float_suffix)
     |> token(:number_float)
