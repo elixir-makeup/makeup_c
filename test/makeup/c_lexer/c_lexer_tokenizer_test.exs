@@ -357,10 +357,27 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
       end
     end
 
-    test "stdint types" do
+    test "stdint exact-width types" do
       for t <- ~w(int8_t uint8_t int16_t uint16_t int32_t uint32_t int64_t uint64_t) do
         assert lex(t) == [{:keyword_type, %{}, t}]
       end
+    end
+
+    test "stdint least-width and fast-width types" do
+      for t <- ~w(int_least8_t uint_least16_t int_fast32_t uint_fast64_t) do
+        assert lex(t) == [{:keyword_type, %{}, t}]
+      end
+    end
+
+    test "stddef and pointer-sized types" do
+      for t <- ~w(size_t ssize_t ptrdiff_t intptr_t uintptr_t intmax_t uintmax_t) do
+        assert lex(t) == [{:keyword_type, %{}, t}]
+      end
+    end
+
+    test "C23 char8_t and nullptr_t" do
+      assert lex("char8_t") == [{:keyword_type, %{}, "char8_t"}]
+      assert lex("nullptr_t") == [{:keyword_type, %{}, "nullptr_t"}]
     end
   end
 
