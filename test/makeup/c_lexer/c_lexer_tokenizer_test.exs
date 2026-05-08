@@ -57,6 +57,25 @@ defmodule Makeup.Lexers.CLexer.TokenizerTest do
 
     test "binary integer" do
       assert lex("0b1010") == [{:number_bin, %{}, "0b1010"}]
+      assert lex("0B1010") == [{:number_bin, %{}, "0B1010"}]
+    end
+
+    test "hex integer accepts 0X prefix as well as 0x" do
+      assert lex("0XFF") == [{:number_hex, %{}, "0XFF"}]
+    end
+
+    test "octal integer (traditional 0-prefix)" do
+      assert lex("0755") == [{:number_oct, %{}, "0755"}]
+      assert lex("01") == [{:number_oct, %{}, "01"}]
+    end
+
+    test "octal integer (C23 0o / 0O prefix)" do
+      assert lex("0o755") == [{:number_oct, %{}, "0o755"}]
+      assert lex("0O755") == [{:number_oct, %{}, "0O755"}]
+    end
+
+    test "bare 0 is an integer, not octal" do
+      assert lex("0") == [{:number_integer, %{}, "0"}]
     end
 
     test "float without exponent" do

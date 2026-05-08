@@ -2,7 +2,6 @@ defmodule Makeup.Lexers.CLexer do
   import NimbleParsec
   import Makeup.Lexer.Combinators
   import Makeup.Lexer.Groups
-  import Makeup.Lexers.CLexer.Helper
   @behaviour Makeup.Lexer
 
   ###################################################################
@@ -28,29 +27,39 @@ defmodule Makeup.Lexers.CLexer do
   bin_digits = ascii_string([?0..?1], min: 1)
   hex_digits = ascii_string([?0..?9, ?a..?f, ?A..?F], min: 1)
   oct_digits = ascii_string([?0..?7], min: 1)
-  # Digits in an integer may be separated by underscores
-  number_bin_part = with_optional_separator(bin_digits, "_")
-  number_oct_part = with_optional_separator(oct_digits, "_")
-  number_hex_part = with_optional_separator(hex_digits, "_")
-  integer = with_optional_separator(digits, "_")
 
-  # Tokens for the lexer
-  number_bin = string("0b") |> concat(number_bin_part) |> token(:number_bin)
-  number_oct = string("0o") |> concat(number_oct_part) |> token(:number_oct)
-  number_hex = string("0x") |> concat(number_hex_part) |> token(:number_hex)
-  # Base 10
-  number_integer = token(integer, :number_integer)
+  number_bin =
+    choice([string("0b"), string("0B")])
+    |> concat(bin_digits)
+    |> token(:number_bin)
 
-  # Floating point numbers
+  number_hex =
+    choice([string("0x"), string("0X")])
+    |> concat(hex_digits)
+    |> token(:number_hex)
+
+  # Octal: traditional C `0` prefix (`0755`) and the C23 `0o`/`0O` prefix
+  # (`0o755`). The `0o`/`0O` form requires at least one octal digit; the
+  # bare `0` form requires at least one too, so plain `0` falls through
+  # to number_integer below.
+  number_oct =
+    choice([
+      choice([string("0o"), string("0O")]) |> concat(oct_digits),
+      string("0") |> concat(oct_digits)
+    ])
+    |> token(:number_oct)
+
+  number_integer = token(digits, :number_integer)
+
   float_scientific_notation_part =
     ascii_string([?e, ?E], 1)
-    |> optional(string("-"))
-    |> concat(integer)
+    |> optional(ascii_char([?+, ?-]))
+    |> concat(digits)
 
   number_float =
-    integer
+    digits
     |> string(".")
-    |> concat(integer)
+    |> concat(digits)
     |> optional(float_scientific_notation_part)
     |> token(:number_float)
 
