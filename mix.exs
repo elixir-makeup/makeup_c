@@ -1,14 +1,14 @@
 defmodule MakeupC.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "1.0.0"
   @url "https://github.com/elixir-makeup/makeup_c"
 
   def project do
     [
       app: :makeup_c,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       # Package
@@ -46,7 +46,7 @@ defmodule MakeupC.MixProject do
   defp deps do
     [
       {:makeup, "~> 1.0"},
-      {:ex_doc, ">= 0.0.0", only: [:dev, :docs]},
+      {:ex_doc, ">= 0.0.0", only: [:dev, :docs]}
     ]
   end
 
@@ -57,5 +57,4 @@ defmodule MakeupC.MixProject do
       main: "Makeup.Lexers.CLexer"
     ]
   end
-
 end
